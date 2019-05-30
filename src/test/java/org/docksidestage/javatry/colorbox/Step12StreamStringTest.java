@@ -15,9 +15,14 @@
  */
 package org.docksidestage.javatry.colorbox;
 
+import java.awt.*;
+import java.util.Comparator;
+import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.docksidestage.bizfw.colorbox.ColorBox;
+import org.docksidestage.bizfw.colorbox.space.BoxSpace;
 import org.docksidestage.bizfw.colorbox.yours.YourPrivateRoom;
 import org.docksidestage.unit.PlainTestCase;
 
@@ -25,7 +30,7 @@ import org.docksidestage.unit.PlainTestCase;
  * The test of String with color-box, using Stream API you can. <br>
  * Show answer by log() for question of javadoc.
  * @author jflute
- * @author your_name_here
+ * @author jotaro.yuza
  */
 public class Step12StreamStringTest extends PlainTestCase {
 
@@ -40,14 +45,15 @@ public class Step12StreamStringTest extends PlainTestCase {
         List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
         String answer = colorBoxList.stream()
                 .findFirst()
-                .map(colorBox -> colorBox.getColor()) // consciously split as example
+                // consciously split as example
+                .map(colorBox -> colorBox.getColor())
                 .map(boxColor -> boxColor.getColorName())
                 .map(colorName -> {
-                    log(colorName); // for visual check
+                    log("First color box name: " + colorName); // for visual check
                     return String.valueOf(colorName.length());
                 })
                 .orElse("not found"); // basically no way because of not-empty list and not-null returns
-        log(answer);
+        log("length: " + answer);
     }
 
     /**
@@ -55,6 +61,15 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスに入ってる文字列の中で、一番長い文字列は？)
      */
     public void test_length_findMax() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        String maxStr = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(space -> space.getContent())
+                .filter(content -> content instanceof String)
+                .map(content -> ((String) content))
+                .max(Comparator.comparingInt(String::length))
+                .orElse(null);
+        log("{}: {}", maxStr, maxStr.length());
     }
 
     /**
@@ -62,6 +77,31 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスに入ってる文字列の中で、一番長いものと短いものの差は何文字？)
      */
     public void test_length_findMaxMinDiff() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+
+        String maxStr = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(space -> space.getContent())
+                .filter(content -> content instanceof String)
+                .map(content -> ((String) content))
+                .max(Comparator.comparingInt(String::length))
+                .orElse(null);
+
+        String minStr = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(space -> space.getContent())
+                .filter(content -> content instanceof String)
+                .map(content -> ((String) content))
+                .min(Comparator.comparingInt(String::length))
+                .orElse(null);
+
+        assert maxStr != null;
+        log("{}: {}", maxStr, maxStr.length());
+        assert minStr != null;
+        log("{}: {}", minStr, minStr.length());
+        log("diff: {}", maxStr.length() - minStr.length());
+
+        // IntSummaryStatisticsを使うともっと簡単
     }
 
     // has small #adjustmemts from ClassicStringTest
@@ -70,7 +110,17 @@ public class Step12StreamStringTest extends PlainTestCase {
      * Which value (toString() if non-string) has second-max legnth in color-boxes? (sort allowed in Stream)<br>
      * (カラーボックスに入ってる値 (文字列以外はtoString()) の中で、二番目に長い文字列は？ (Streamでのソートありで))
      */
-    public void test_length_findSecondMax() {
+    public void test_length_findSecondMax() { //TODO 見直す 2019/05/30
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+
+        List<String> contentList = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(space -> space.getContent())
+                .filter(content -> content != null)
+                .map(content -> (content.toString()))
+                .sorted(Comparator.comparingInt(String::length))
+                .collect(Collectors.toList());
+        log("Second max : {}", contentList.get(contentList.size() - 2));
     }
 
     /**

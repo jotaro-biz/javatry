@@ -5,13 +5,8 @@
 .DS_Store
 
 # IntelliJ IDEA
-**/.idea/*
-!**/.idea/inspectionProfiles
-!**/.idea/codeStyles
-!**/.idea/codeStyleSettings.xml
-!**/.idea/misc.xml
-!**/.idea/saveactions_settings.xml
-**/*.iml
+.idea
+javatry.iml
 /out
 
 # Gradle
