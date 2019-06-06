@@ -303,9 +303,6 @@ public class Step11ClassicStringTest extends PlainTestCase {
                         if (strArray[i].equals(targetChar)) {
                             count++;
                             if (count >= 2) {
-                                //                                System.out.println(strArray[i -1]);
-                                //                                System.out.println(i);
-                                //                                System.out.println(strContent);
                                 log(strContent  + ':' + (i + 1));
                             }
                         }

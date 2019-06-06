@@ -19,9 +19,11 @@ import java.awt.*;
 import java.util.Comparator;
 import java.util.IntSummaryStatistics;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.docksidestage.bizfw.colorbox.ColorBox;
+import org.docksidestage.bizfw.colorbox.size.BoxSize;
 import org.docksidestage.bizfw.colorbox.space.BoxSpace;
 import org.docksidestage.bizfw.colorbox.yours.YourPrivateRoom;
 import org.docksidestage.unit.PlainTestCase;
@@ -128,6 +130,18 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスに入ってる文字列の長さの合計は？)
      */
     public void test_length_calculateLengthSum() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        int sumLength = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(space -> space.getContent())
+                .filter(content -> content instanceof String)
+                .mapToInt(content -> (((String) content).length()))
+                .sum();
+        if (sumLength != 0) {
+            log("Total lengths are {} characters", sumLength);
+        } else {
+            log("There is no string contents");
+        }
     }
 
     /**
@@ -135,6 +149,16 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスの中で、色の名前が一番長いものは？)
      */
     public void test_length_findMaxColorSize() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        Optional<String> maxLengthColor = colorBoxList.stream()
+                .map(colorBox -> colorBox.getColor()
+                        .getColorName())
+                .max(Comparator.comparingInt(String::length));
+        if (maxLengthColor.isPresent()) {
+            log("'{}' has max length in color-boxes", maxLengthColor.get());
+        } else {
+            log("Not found name color");
+        }
     }
 
     // ===================================================================================
@@ -144,14 +168,52 @@ public class Step12StreamStringTest extends PlainTestCase {
      * What is color in the color-box that has string starting with "Water"? <br>
      * ("Water" で始まる文字列をしまっているカラーボックスの色は？)
      */
-    public void test_startsWith_findFirstWord() {
+    public void test_startsWith_findFirstWord() { // TODO: 2019-06-06 解き直す
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        String searchWord = "Water";
+        Optional<String> contentList = colorBoxList.stream()
+                .filter(colorBox -> colorBox.getSpaceList().stream()
+                                    .anyMatch(space -> space.getContent() instanceof String
+                                                    && space.getContent().toString().startsWith(searchWord)))
+                .map(colorBox -> colorBox.getColor().getColorName())
+                .findFirst();
+        contentList.ifPresentOrElse(result -> log("'{}' is color in the color-box that has string starting with 'Water'", result), () -> log("not found"));
     }
+
+//    public void test_startsWith_findFirstWord() { // TODO: 2019-06-06 別解
+//
+//        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+//        Optional<String> answers = colorBoxList.stream().filter(box -> {
+//            boolean startWithWater = false;
+//            for (BoxSpace space : box.getSpaceList()) {
+//                Object content = space.getContent();
+//                if (content instanceof String && String.valueOf(content).startsWith("Water")) {
+//                    startWithWater = true;
+//                }
+//            }
+//            return startWithWater;
+//        }).map(box -> box.getColor().getColorName()).findFirst();
+//
+//
+//        answers.ifPresentOrElse(result-> log(result),()->log("not found"));
+//
+//
+//    }
 
     /**
      * What is color in the color-box that has string ending with "front"? <br>
      * ("front" で終わる文字列をしまっているカラーボックスの色は？)
      */
     public void test_endsWith_findLastWord() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        String searchWord = "front";
+        Optional<String> colorName = colorBoxList.stream()
+                .filter(colorBox -> colorBox.getSpaceList().stream()
+                        .anyMatch(space -> space.getContent() instanceof String
+                                && ((String) space.getContent()).endsWith(searchWord)))
+                .map(colorBox -> colorBox.getColor().getColorName())
+                .findFirst();
+        colorName.ifPresentOrElse(result -> log("{} is color in the color-box that has string ending with 'front'", result), () -> log("not found"));
     }
 
     // ===================================================================================
@@ -162,14 +224,34 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスに入ってる "front" で終わる文字列で、最初の "front" は何文字目から始まる？)
      */
     public void test_indexOf_findIndex() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        String searchWord = "front";
+        Optional<String> colorBoxContent  = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(boxSpace -> boxSpace.getContent())
+                .filter(content -> content instanceof String)
+                .map(content -> (String)content)
+                .filter(content -> content.endsWith(searchWord))
+                .findFirst();
+        colorBoxContent.ifPresentOrElse(result -> log("From '{}' characters", result.lastIndexOf(searchWord) + 1), () -> log("not found"));
     }
 
     /**
      * What number character is starting with the late "ど" of string containing plural "ど"s in color-boxes? (e.g. "どんどん" => 3) <br>
      * (カラーボックスに入ってる「ど」を二つ以上含む文字列で、最後の「ど」は何文字目から始まる？ (e.g. "どんどん" => 3))
      */
-    public void test_lastIndexOf_findIndex() {
-    }
+//    public void test_lastIndexOf_findIndex() {
+//        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+//        String targetChar = "ど";
+//        Optional<String> strContent = colorBoxList.stream()
+//                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+//                .map(boxSpace -> boxSpace.getContent())
+//                .filter(content -> content instanceof String)
+//                .map(content -> (String)content)
+//                .map(content -> content.split(""))
+//                .filter(contentChar -> contentChar.equals(targetChar))
+//                .findFirst();
+//    }
 
     // ===================================================================================
     //                                                                         substring()
