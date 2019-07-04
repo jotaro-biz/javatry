@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.docksidestage.bizfw.colorbox.ColorBox;
 import org.docksidestage.bizfw.colorbox.color.BoxColor;
@@ -330,8 +331,7 @@ public class Step11ClassicStringTest extends PlainTestCase {
                 if (content instanceof String) {
                     String strContent = (String) content;
                     if (strContent.endsWith(searchWord)) {
-                        log(strContent);
-                        log("'{}' is first of string", strContent.substring(0,1));
+                        log("{}: '{}' is first of string", strContent, strContent.substring(0,1));
                     }
                 }
             }
@@ -352,8 +352,7 @@ public class Step11ClassicStringTest extends PlainTestCase {
                 if (content instanceof String) {
                     String strContent = (String) content;
                     if (strContent.startsWith(searchWord)) {
-                        log(strContent);
-                        log("'{}' is last of string", strContent.substring(strContent.length() - 1));
+                        log("{}: '{}' is last of string", strContent, strContent.substring(strContent.length() - 1));
                     }
                 }
             }
@@ -448,6 +447,14 @@ public class Step11ClassicStringTest extends PlainTestCase {
     public void test_showMap_flat() {
         List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
         List<String> resultArrayList = new ArrayList<>();
+
+        // 久保さんのリファクタリング
+//        Set<Map.Entry<Object, Object>> entries = (Map<Object, Object> content).entrySet();
+//        for (Map.Entry<java.lang.Object, java.lang.Object> entry : entries) {
+//            entry.getKey();
+//            entry.getValue();
+//        }
+
         for (ColorBox colorBox : colorBoxList) {
             List<BoxSpace> spaceList = colorBox.getSpaceList();
             for (BoxSpace space : spaceList) {
@@ -458,7 +465,7 @@ public class Step11ClassicStringTest extends PlainTestCase {
                 }
             }
         }
-        log("map:{" + "{}" + "}", String.join(", ", resultArrayList));
+        log("map:{" + "{}" + "}", String.join(" ; ", resultArrayList));
     }
 
     /**

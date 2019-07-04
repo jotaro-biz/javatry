@@ -16,6 +16,7 @@
 package org.docksidestage.javatry.colorbox;
 
 import java.awt.*;
+import java.io.File;
 import java.util.Comparator;
 import java.util.IntSummaryStatistics;
 import java.util.List;
@@ -240,18 +241,19 @@ public class Step12StreamStringTest extends PlainTestCase {
      * What number character is starting with the late "ど" of string containing plural "ど"s in color-boxes? (e.g. "どんどん" => 3) <br>
      * (カラーボックスに入ってる「ど」を二つ以上含む文字列で、最後の「ど」は何文字目から始まる？ (e.g. "どんどん" => 3))
      */
-//    public void test_lastIndexOf_findIndex() {
-//        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
-//        String targetChar = "ど";
-//        Optional<String> strContent = colorBoxList.stream()
-//                .flatMap(colorBox -> colorBox.getSpaceList().stream())
-//                .map(boxSpace -> boxSpace.getContent())
-//                .filter(content -> content instanceof String)
-//                .map(content -> (String)content)
-//                .map(content -> content.split(""))
-//                .filter(contentChar -> contentChar.equals(targetChar))
-//                .findFirst();
-//    }
+    public void test_lastIndexOf_findIndex() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        String targetChar = "ど";
+        Optional<String> strContent = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(boxSpace -> boxSpace.getContent())
+                .filter(content -> content instanceof String)
+                .map(content -> (String)content)
+                .filter(content -> content.lastIndexOf(targetChar) != content.indexOf(targetChar))
+//                .map(contentChar -> contentChar.lastIndexOf(targetChar))
+                .findFirst();
+        strContent.ifPresentOrElse(result -> log("{} : {}", result, result.lastIndexOf(targetChar) + 1), () -> log("not found."));
+    }
 
     // ===================================================================================
     //                                                                         substring()
@@ -261,6 +263,19 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスに入ってる "front" で終わる文字列の最初の一文字は？)
      */
     public void test_substring_findFirstChar() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        String searchWord = "front";
+        Optional<String> foundWord = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(boxSpace -> boxSpace.getContent())
+                .filter(content -> content instanceof String)
+                .map(content -> content.toString())
+                .filter(content -> content.endsWith(searchWord))
+                .findFirst();
+        foundWord.ifPresentOrElse(
+                result -> log("'{}: {}' is first of string", result, result.substring(0,1)),
+                () -> log("not found")
+        );
     }
 
     /**
@@ -268,6 +283,20 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスに入ってる "Water" で始まる文字列の最後の一文字は？)
      */
     public void test_substring_findLastChar() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        String searchWord = "Water";
+        Optional<String> foundWord = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(space -> space.getContent())
+                .filter(content -> content instanceof String)
+                .map(content -> (String) content)
+                .filter(content -> ((content).startsWith(searchWord)))
+                .findFirst();
+
+        foundWord.ifPresentOrElse(
+                result -> log("{}: '{}' is last of string", result, result.substring(result.length() - 1)),
+                () -> log("not found")
+        );
     }
 
     // ===================================================================================
@@ -278,6 +307,18 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスに入ってる "o" (おー) を含んだ文字列から "o" を全て除去したら何文字？)
      */
     public void test_replace_remove_o() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        String searchStr = "o";
+        Optional<String> replacedContent = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(boxSpace -> boxSpace.getContent())
+                .filter(content -> content instanceof String)
+                .map(content -> (String)content)
+                .filter(strContent -> strContent.contains(searchStr))
+                .map(foundWord -> foundWord.replace(searchStr, ""))
+                .findFirst();
+        replacedContent.ifPresentOrElse(result -> log("{} : {} characters", result, result.length()), () -> log("not found"));
+
     }
 
     /**
@@ -285,6 +326,15 @@ public class Step12StreamStringTest extends PlainTestCase {
      * カラーボックスに入ってる java.io.File のパス文字列のファイルセパレーターの "/" を、Windowsのファイルセパレーターに置き換えた文字列は？
      */
     public void test_replace_fileseparator() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        Optional<String> filePath = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(boxSpace -> boxSpace.getContent())
+                .filter(content -> content instanceof File)
+                .map(content -> ((File) content).getPath())
+                .findFirst();
+
+        filePath.ifPresentOrElse(result -> log("{} -> {}", result, result.replace("/", "\\")), () -> log("not found"));
     }
 
     // ===================================================================================
@@ -295,6 +345,28 @@ public class Step12StreamStringTest extends PlainTestCase {
      * (カラーボックスの中に入っているDevilBoxクラスのtextの長さの合計は？)
      */
     public void test_welcomeToDevil() {
+        List<ColorBox> colorBoxList = new YourPrivateRoom().getColorBoxList();
+        int totalLength = colorBoxList.stream()
+                .flatMap(colorBox -> colorBox.getSpaceList().stream())
+                .map(boxSpace -> boxSpace.getContent())
+                .filter(content -> content instanceof YourPrivateRoom.DevilBox)
+                .map(content -> (YourPrivateRoom.DevilBox) content)
+                .map(content -> {
+                    content.wakeUp();
+                    content.allowMe();
+                    content.open();
+                    try {
+                        log("text : {}", content.getText());
+                        return content.getText();
+                    } catch (YourPrivateRoom.DevilBoxTextNotFoundException ignored){
+                        return "";
+                    }
+                })
+                .mapToInt(devilT -> devilT.length())
+                .sum();
+
+        log("total length: " + totalLength);
+//        devilText.ifPresentOrElse(result -> log(result), () -> log("not found"));
     }
 
     // ===================================================================================
