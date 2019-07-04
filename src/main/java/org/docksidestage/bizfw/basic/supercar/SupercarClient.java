@@ -18,6 +18,7 @@ package org.docksidestage.bizfw.basic.supercar;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.docksidestage.bizfw.basic.screw.SpecialScrewManufacturer;
 import org.docksidestage.bizfw.basic.supercar.SupercarManufacturer.Supercar;
 
 /**
@@ -31,8 +32,12 @@ public class SupercarClient {
     public void buySupercar() {
         SupercarDealer dealer = createDealer();
         String clientRequirement = "steering wheel is like sea";
-        Supercar orderedCustomCar = dealer.orderSupercar(clientRequirement);
-        myCarList.add(orderedCustomCar);
+        try {
+            Supercar orderedCustomCar = dealer.orderSupercar(clientRequirement);
+            myCarList.add(orderedCustomCar);
+        } catch(SpecialScrewManufacturer.SpecialScrewCannotMakeBySpecException e) {
+            throw new SpecialScrewManufacturer.SpecialScrewCannotMakeBySpecException("Cannot respond to clientRequirement");
+        }
     }
 
     protected SupercarDealer createDealer() {

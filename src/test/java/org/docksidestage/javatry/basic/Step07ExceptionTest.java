@@ -15,9 +15,14 @@
  */
 package org.docksidestage.javatry.basic;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.docksidestage.bizfw.basic.supercar.SupercarClient;
 import org.docksidestage.javatry.basic.st7.St7ConstructorChallengeException;
 import org.docksidestage.unit.PlainTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The test of variable. <br>
@@ -51,45 +56,57 @@ public class Step07ExceptionTest extends PlainTestCase {
     public void test_exception_hierarchy_Runtime_instanceof_RuntimeException() {
         Object exp = new IllegalStateException("mystic");
         boolean sea = exp instanceof RuntimeException;
-        log(sea); // your answer? => 
+        log(sea); // your answer? => true(継承しているので)
     }
 
     /** Same as the previous method question. (前のメソッドの質問と同じ) */
     public void test_exception_hierarchy_Runtime_instanceof_Exception() {
         Object exp = new IllegalStateException("mystic");
         boolean sea = exp instanceof Exception;
-        log(sea); // your answer? => 
+        log(sea); // your answer? => true(継承しているので)
     }
 
     /** Same as the previous method question. (前のメソッドの質問と同じ) */
     public void test_exception_hierarchy_Runtime_instanceof_Error() {
         Object exp = new IllegalStateException("mystic");
         boolean sea = exp instanceof Error;
-        log(sea); // your answer? => 
+        log(sea); // your answer? => false(継承していないので)
     }
 
     /** Same as the previous method question. (前のメソッドの質問と同じ) */
     public void test_exception_hierarchy_Runtime_instanceof_Throwable() {
         Object exp = new IllegalStateException("mystic");
         boolean sea = exp instanceof Throwable;
-        log(sea); // your answer? => 
+        log(sea); // your answer? => true(Exceptionが継承しているので)
     }
 
     /** Same as the previous method question. (前のメソッドの質問と同じ) */
     public void test_exception_hierarchy_Throwable_instanceof_Exception() {
         Object exp = new Throwable("mystic");
         boolean sea = exp instanceof Exception;
-        log(sea); // your answer? => 
+        log(sea); // your answer? => false(ThrowableはExceptionの親クラスなので)
     }
 
     // ===================================================================================
     //                                                                   Checked Exception
     //                                                                   =================
+    private static final Logger logger = LoggerFactory.getLogger(Step07ExceptionTest.class);
     /**
-     * Show cannonical path of new java.io.File(".") by log(), and if I/O error, show message and stack-trace instead <br>
-     * (new java.io.File(".") の cannonical path を取得してログに表示、I/Oエラーはメッセージとスタックトレースを代わりに)
+     * Show canonical path of new java.io.File(".") by log(), and if I/O error, show message and stack-trace instead <br>
+     * (new java.io.File(".") の canonical path を取得してログに表示、I/Oエラーはメッセージとスタックトレースを代わりに)
      */
     public void test_exception_checkedException_basic() {
+        File file = new File(".");
+        try {
+            log(file.getCanonicalPath());
+            throw new IOException("exception test"); // これで検証する
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("++++++++++++++++++");
+            log(e);
+            System.out.println("++++++++++++++++++");
+            logger.error("Failed", e);
+        }
     }
 
     // ===================================================================================
@@ -100,7 +117,7 @@ public class Step07ExceptionTest extends PlainTestCase {
      * And What is exception class name displayed at the last "Caused By:" of stack trace? <br>
      * (catchブロックの変数 sea, land の中身は？また、スタックトレースの最後の "Caused By:" で表示されている例外クラス名は？)
      */
-    public void test_exception_cause_basic() {
+    public void test_exception_cause_basic() { // TODO jotaro.yuza わからん、もう一回 (2019-07-04)
         String sea = "mystic";
         String land = "oneman";
         try {
@@ -110,9 +127,9 @@ public class Step07ExceptionTest extends PlainTestCase {
             Throwable cause = e.getCause();
             sea = cause.getMessage();
             land = cause.getClass().getSimpleName();
-            log(sea); // your answer? => 
-            log(land); // your answer? => 
-            log(e); // your answer? => 
+            log(sea); // your answer? => Failed to call the third help method: -1 ->OK
+            log(land); // your answer? => IllegalStateException
+            log(e); // your answer? => java.lang.NumberFormatException: For input string: "piari"
         }
     }
 
@@ -157,8 +174,21 @@ public class Step07ExceptionTest extends PlainTestCase {
             // _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
             // What happens? Write situation and cause here. (何が起きた？状況と原因をここに書いてみましょう)
             // - - - - - - - - - -
+            // ディーラーにスーパーカーをオーダーして"steering wheel is like sea"というリクエストから"piari"というスーパーカーを作ることになった。
+            // スーパーカーステアリングホイールメーカー
+            // findClincherSpecTextに3を入れて"\\(^_^)/"を取得
+            // makeSpecialScrewするも"\\(^_^)/"が入っていたので例外
             //
-            //
+            // SupercarClient().buySupercar() -> Supercar orderedCustomCar = dealer.orderSupercar(clientRequirement); -> return manufacturer.makeSupercar("piari"); ->
+            // SupercarSteeringWheelManufacturer manufacturer = createSupercarSteeringWheelManufacturer(); -> return new SupercarSteeringWheelManufacturer(); ->
+            // SpecialScrew screw = manufacturer.makeSpecialScrew(screwSpec); ->
+            // String specText = screwSpec.getSpecText();
+            // if (specText.equals("\\(^_^)/")) { // too pinpoint!?
+            //     String msg = "The kawaii face is not useful to make screw: " + screwSpec;
+            //     throw new SpecialScrewCannotMakeBySpecException(msg);
+            // }
+            // return new SpecialScrew(specText);
+            //piariなら3を取得してspecTextの3には\\(^_^)/が入っていたのでOK
             //
             // _/_/_/_/_/_/_/_/_/_/
         }
@@ -197,7 +227,7 @@ public class Step07ExceptionTest extends PlainTestCase {
         try {
             helpThrowIllegalState();
         } catch (IllegalStateException e) {
-            throw new St7ConstructorChallengeException("Failed to do something.");
+            throw new St7ConstructorChallengeException("Failed to do something.", e);
         }
     }
 
